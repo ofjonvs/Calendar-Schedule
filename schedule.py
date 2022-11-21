@@ -1,7 +1,5 @@
 from calendar import Calendar, TextCalendar
 from datetime import date
-import datetime
-from distutils.log import error
 import re
 import sys
 
@@ -123,6 +121,11 @@ class Day:
         print("Deadlines: ")
         for task in self.deadlines:
             print(task)
+        # print("Todo list: ")
+        # for task in self.todo:
+        #     if self.todo[task] >= 60: print(f"{task}, {int(self.todo[task]/60)} Hrs {self.todo[task] % 60} minutes")
+        #     elif self.todo[task] == 0: print(task)
+        #     else: print(f"{task}, {self.todo[task]} minutes")
     
     def clear(self):
         for time in self.times:
@@ -229,15 +232,23 @@ def showWeekEvents(date, cal):
     if week == None:
         return -1
 
+    totalFreeTime = 0
     for d in week:
+        totalFreeTime += d.minutes
         print('─' * 50)
         print(f"{daysOfWeek[week.index(d)].upper()} {d.date.month}/{d.date.day}")
         d.showEvents()
         print('─' * 50)
     upcomingDeadlines(date, cal)
+    hours = int(totalFreeTime / 60)
+    min = totalFreeTime % 60
+    print(f"Total Free Time this week: {hours} Hours {min} Minutes")
     print('─' * 50 + '\nTodo: ')
-    for todo in day.todo:
-        print(todo)
+
+    for task in day.todo:
+        if day.todo[task] >= 60: print(f"{task}, {int(day.todo[task]/60)} Hrs {day.todo[task] % 60} minutes")
+        elif day.todo[task] == 0: print(task)
+        else: print(f"{task}, {day.todo[task]} minutes")
     print('─' * 50)
 
 
@@ -247,7 +258,7 @@ daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 calendar = {'January':None, 'February':None,'March':None,'April':None,'May':None,'June':None,
 'July':None,'August':None,'September':None,'October':None,'November':None,'December':None,}
 responsibilities = {}
-f = open("events.txt", "r")
+f = open("/Users/jonas/python-workspace/Jonas/Calendar/events.txt", "r")
 
 calendar = createCalendar()
 
@@ -258,9 +269,10 @@ try:
 except:
     nextWeek = date(today.year, today.month + 1, today.day + 7 - 30)
 
-if sys.argv[1] == "1": pass
-elif sys.argv[1] == '2': sys.stdout = open('output.txt', 'w')
-else: exit()
+if len(sys.argv) == 2:
+    if sys.argv[1] == "1": pass
+    elif sys.argv[1] == '2': sys.stdout = open('/Users/jonas/Library/Mobile Documents/com~apple~CloudDocs/schedule.txt', 'w')
+    else: exit()
 
 for line in f:
     type = re.search("^(event|reccurring|todo|deadline)", line)
